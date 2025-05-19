@@ -400,7 +400,8 @@ def extract_keywords_with_bert(text: str, models: dict, top_n: int = 10) -> List
         candidate_phrases.extend(list(set([token.lemma_.lower() for token in doc_spacy if token.pos_ in ['NOUN', 'PROPN', 'ADJ'] and not token.is_stop and not token.is_punct and len(token.lemma_) > 3]))) # Add other significant tokens
         candidate_phrases = list(set(candidate_phrases)) # Ensure uniqueness
 
-        if not candidate_phrases: return [] # Return empty if no candidates
+        if not candidate_phrases:
+            return [] # Return empty if no candidates
 
         phrase_embeddings = [] # List to store phrase embeddings
         valid_phrases = [] # List to store phrases for which embeddings were successful
@@ -430,14 +431,16 @@ def extract_keywords_with_bert(text: str, models: dict, top_n: int = 10) -> List
 # --- SUMMARY GENERATION ---
 def generate_summary(models: dict, text: str, audience: str, max_input_length_t5: int = 1024, max_input_length_bart: int = 1024) -> str:
     """Generate audience-specific summaries using appropriate models."""
-    if not text: return "Cannot generate summary from empty text." # Handle empty input
+    if not text:
+        return "Cannot generate summary from empty text." # Handle empty input
 
     try: # Start try block for summary generation
         # Child-friendly summary using BART model
         if audience == "child": # Check if audience is child
             # Truncate text for child summarizer if it's too long (BART has token limits, typically 1024)
             processed_text_for_child = preprocess_text(text, "child")[:max_input_length_bart * 4] # Heuristic for character limit based on token limit
-            if not processed_text_for_child.strip(): return "Not enough content for a child-friendly summary after preprocessing." # Check if text remains
+            if not processed_text_for_child.strip():
+                return "Not enough content for a child-friendly summary after preprocessing." # Check if text remains
 
             summary_output = models['child_summarizer']( # Use child summarizer pipeline
                 processed_text_for_child, # Input processed text
@@ -533,7 +536,8 @@ def generate_study_materials(text: str, nlp_model: Any) -> Optional[Dict[str, Li
     if not text or not text.strip(): return None # Return None if text is empty
     doc = nlp_model(text[:50000]) # Process with spaCy (limit length for performance)
     sentences = list(doc.sents) # Get sentences from the spaCy doc
-    if not sentences: return None # Return None if no sentences found
+    if not sentences:
+        return None # Return None if no sentences found
 
     # Extract key phrases (noun chunks, prioritizing those with adjectives/numbers)
     key_phrases = [] # Initialize list for key phrases
